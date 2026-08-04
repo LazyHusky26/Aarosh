@@ -1,0 +1,11 @@
+{
+  "name": "aarosh",
+  "displayName": "Aarosh",
+  "version": "0.1.0",
+  "description": "An on-demand cybersecurity expert for Claude Code - scans code for vulnerabilities against real security standards (OWASP, CIS) and proposes reviewable fixes.",
+  "author": {
+    "name": "LazyHusky26"
+  },
+  "repository": "https://github.com/LazyHusky26/Aarosh",
+  "keywords": ["security", "pentest", "owasp", "vulnerability-scan", "code-review"]
+}

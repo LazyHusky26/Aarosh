@@ -1,0 +1,15 @@
+{
+  "name": "aarosh",
+  "owner": {
+    "name": "LazyHusky26",
+    "url": "https://github.com/LazyHusky26"
+  },
+  "plugins": [
+    {
+      "name": "aarosh",
+      "source": "./plugins/aarosh",
+      "description": "On-demand cybersecurity expert that scans code for vulnerabilities against real security standards and proposes reviewable fixes.",
+      "version": "0.1.0"
+    }
+  ]
+}

@@ -1,39 +1,42 @@
 # Aarosh
-CyberSec Claude Code Plugin
 
-An on-demand cybersecurity expert that scans code for vulnerabilities against real security standards (OWASP, CIS) and proposes reviewable fixes — never patches without asking first.
+On-demand cybersecurity expert for Claude Code. Scans code for vulnerabilities against real security standards (OWASP, CIS) and proposes reviewable fixes — never patches without asking first.
 
 ## Install
 
-This repo is private for now — not published to a public marketplace. `/plugin marketplace add` still works against a private repo you have GitHub access to:
 ```
 /plugin marketplace add LazyHusky26/Aarosh
 /plugin install aarosh@aarosh
 ```
 
-When prompted for install scope, pick **"Install for you (user scope)"** — makes `/aarosh:scan-web` available in any project you work in, not just this repo. ("Project scope" shares it with repo collaborators, "local scope" ties it to this one repo only — neither is what you want for a scanner meant to run against other codebases.)
+When prompted for scope, pick **"Install for you (user scope)"** so `/aarosh:*` commands are available in any project, not just this one. Restart Claude Code, then confirm with `/plugin list`.
 
-Restart/reload Claude Code after install so it picks up the skill. Check it's active with `/plugin list`.
+## Uninstall
 
-**Uninstall:** `/plugin uninstall aarosh@aarosh`. To remove the marketplace entirely: `/plugin marketplace remove aarosh`.
+```
+/plugin uninstall aarosh@aarosh
+/plugin marketplace remove aarosh   # removes the marketplace entirely
+```
 
 ## Usage
-```
-/aarosh:scan-web src/          # OWASP Top 10:2021 — web apps, backend routes
-/aarosh:scan-api routes/       # OWASP API Security Top 10:2023 — REST/GraphQL/RPC
-/aarosh:scan-mobile app/       # OWASP Mobile Top 10 — iOS/Android/RN/Flutter
-/aarosh:scan-infra .           # CIS Docker/K8s Benchmarks + OWASP CI/CD Top 10
-/aarosh:scan-ai agents/        # OWASP Top 10 for LLM Applications
 
+| Command | Standard | Scope |
+|---|---|---|
+| `/aarosh:scan-web` | OWASP Top 10:2025 | Web apps, backend routes |
+| `/aarosh:scan-api` | OWASP API Security Top 10:2023 | REST / GraphQL / RPC |
+| `/aarosh:scan-mobile` | OWASP Mobile Top 10 | iOS / Android / RN / Flutter |
+| `/aarosh:scan-infra` | CIS Docker/K8s Benchmarks + OWASP CI/CD Top 10 | Dockerfiles, K8s, IaC, CI/CD |
+| `/aarosh:scan-ai` | OWASP Top 10 for LLM Applications | Agents, prompts, RAG |
+
+```
+/aarosh:scan-web src/
 /aarosh:scan-web src/ --mode=cokezero
 ```
 
-Modes (control depth via tool-call budget, not which checks run — default is Espresso):
-- `--mode=lactose` — grep-only pass, fastest
-- `--mode=espresso` — grep + read flagged files to confirm (default)
-- `--mode=cokezero` — adds cross-file tracing where a finding's exploitability is ambiguous
+Path defaults to the working directory. `--mode` controls scan depth, not which checks run (default **espresso**):
 
-Every scan: reports a File/Line/Vulnerability/Category/Severity table (worst first), calls out anything that can't be patched in place (e.g. secrets already in git history), then asks before patching. Never patches without a yes.
+- `lactose` — grep-only, fastest
+- `espresso` — grep + read flagged files to confirm (default)
+- `cokezero` — adds cross-file tracing for ambiguous findings
 
-## Status
-All 5 `scan-*` skills implemented. Not yet built: the `sec-expert` deep cross-file review sub-agent.
+Every scan reports a File/Line/Vulnerability/Category/Severity table (worst first), calls out anything that can't be patched in place (e.g. secrets already in git history), then asks before patching — never without a yes.

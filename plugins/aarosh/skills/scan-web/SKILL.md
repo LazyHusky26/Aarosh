@@ -22,23 +22,24 @@ Mode is a hard cap on tool calls, not a suggestion — it exists to control toke
 | **Espresso** (default) | Grep first to locate candidates, then read only the flagged file(s) — just enough surrounding lines/function body to confirm the match is real and not a false positive (e.g. already-sanitized input). No cross-file tracing. |
 | **CokeZero** | Same as Espresso, plus: for findings where exploitability is genuinely ambiguous from one file (e.g. "is this input sanitized before it gets here"), follow the import/call chain into the files that matter. Don't trace everything — only what's needed to resolve the ambiguity. |
 
-Never skip a check category for a lower mode — Lactose still checks all 9 categories below, it just does it via pattern match instead of confirmed reads.
+Never skip a check category for a lower mode — Lactose still checks all 10 categories below, it just does it via pattern match instead of confirmed reads.
 
-## 2. Check against OWASP Top 10 (2021)
+## 2. Check against OWASP Top 10 (2025)
 
-Scope: frontend code, backend routes, and their interaction (not pure API-only review — that's `scan-api`, not yet built). Per the mode rules above, look for:
+Scope: frontend code, backend routes, and their interaction (not pure API-only review — use `scan-api` for REST/GraphQL/RPC service code; if both are run against the same routes, don't double-report the same finding). Per the mode rules above, look for:
 
-- **A03:2021 – Injection:** SQL injection, NoSQL injection, command injection, template injection (string-built queries/commands from user input instead of parameterized calls).
-- **A03:2021 – Injection (XSS):** reflected, stored, and DOM-based XSS — unescaped user-controlled data rendered into HTML, JS, or attributes.
-- **A01:2021 – Broken Access Control (CSRF):** state-changing requests (POST/PUT/DELETE) with no CSRF token and no `SameSite` cookie protection.
-- **A07:2021 – Identification and Authentication Failures:** missing/weak session invalidation on logout, insecure cookie flags (missing `HttpOnly`, `Secure`, `SameSite`), predictable or non-random session tokens.
-- **A01:2021 – Broken Access Control:** routes that should be role-gated but aren't, IDOR (a user can access another user's resource just by changing an ID in the request).
-- **A05:2021 – Security Misconfiguration:** missing CSP, missing HSTS, verbose error pages leaking stack traces, CORS set to `*` combined with `credentials: true`.
-- **A02:2021 – Cryptographic Failures / A05:2021:** API keys, DB credentials, or other secrets hardcoded in frontend bundles or committed config files.
-- **A06:2021 – Vulnerable and Outdated Components:** dependencies with known CVEs — cross-check `package.json`/lockfiles against what you know of advisory data where possible.
-- **A10:2021 – Server-Side Request Forgery (SSRF):** server-side code that fetches a URL built from unvalidated user input.
+- **A01:2025 – Broken Access Control:** routes that should be role-gated but aren't; IDOR (a user can access another user's resource just by changing an ID in the request); CSRF (state-changing POST/PUT/DELETE with no CSRF token and no `SameSite` cookie protection); SSRF (server-side code that fetches a URL built from unvalidated user input); CORS misconfigured to allow untrusted origins; JWT/cookie tampering enabling privilege escalation; force browsing to authenticated URLs.
+- **A02:2025 – Security Misconfiguration:** missing CSP, missing HSTS, verbose error pages/stack traces leaking sensitive data, CORS set to `*` combined with `credentials: true`, directory listing enabled, default credentials left unchanged, API keys/DB credentials/other secrets hardcoded in frontend bundles or committed config files, cookies missing secure attributes.
+- **A03:2025 – Software Supply Chain Failures:** dependencies with known CVEs, unmaintained/outdated/unsupported libraries — cross-check `package.json`/lockfiles (including transitive dependencies) against what you know of advisory data where possible.
+- **A04:2025 – Cryptographic Failures:** weak/broken algorithms (MD5, SHA1, ECB mode), unsalted or improperly hashed passwords, hardcoded or improperly managed cryptographic keys, unencrypted data in transit (no TLS/HTTPS enforced), missing or invalid certificate validation.
+- **A05:2025 – Injection:** SQL injection, NoSQL injection, command injection, template injection (string-built queries/commands from user input instead of parameterized calls); reflected, stored, and DOM-based XSS — unescaped user-controlled data rendered into HTML, JS, or attributes.
+- **A06:2025 – Insecure Design:** business-logic flaws rather than implementation bugs — missing anti-automation/anti-bot controls on sensitive or high-demand actions, account recovery relying on security questions, missing controls around bulk/high-value operations, trust-boundary violations baked into the design.
+- **A07:2025 – Authentication Failures:** missing/weak session invalidation on logout, session identifiers in the URL instead of a secure cookie, insecure cookie flags (missing `HttpOnly`, `Secure`, `SameSite`), predictable or non-random session tokens, missing MFA on sensitive actions, no credential-stuffing/password-spray mitigation on login.
+- **A08:2025 – Software or Data Integrity Failures:** insecure deserialization of untrusted data, auto-update logic that doesn't verify integrity/signatures, third-party scripts loaded from a CDN without Subresource Integrity (SRI), CI/CD or build steps that trust unverified sources.
+- **A09:2025 – Security Logging and Alerting Failures:** missing logging of auth events (login, failed login, logout) and high-value transactions, sensitive data (PII/secrets) written to logs in plaintext, no alerting/monitoring hook for suspicious activity.
+- **A10:2025 – Mishandling of Exceptional Conditions:** unhandled exceptions or unchecked return values that leave the app in an unsafe state, "failing open" on auth/permission checks when an error occurs, missing rollback on a failed multi-step transaction, resource leaks on exception paths.
 
-Cite the real OWASP code (e.g. `A03:2021`) on every finding — never a generic label.
+Cite the real OWASP code (e.g. `A05:2025`) on every finding — never a generic label.
 
 ## 3. Report findings
 
@@ -46,7 +47,7 @@ Output a markdown table, **sorted by severity (worst first)**. Nothing before it
 
 | File/Line | Vulnerability | Category | Severity |
 |---|---|---|---|
-| `routes/billing.js:42` | SQL query built via string concatenation from `req.query.id` | A03:2021 – Injection | Critical |
+| `routes/billing.js:42` | SQL query built via string concatenation from `req.query.id` | A05:2025 – Injection | Critical |
 
 Severity scale:
 - **Critical** — directly exploitable, high impact (data breach, auth bypass, RCE)

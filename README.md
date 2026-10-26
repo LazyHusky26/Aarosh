@@ -1,6 +1,6 @@
 # Aarosh
 
-On-demand cybersecurity expert for Claude Code. Scans code for vulnerabilities against real security standards (OWASP, CIS) and proposes reviewable fixes — never patches without asking first.
+On-demand cybersecurity expert for Claude Code. Scans code for vulnerabilities against real security standards (OWASP, CIS) and proposes reviewable fixes.
 
 ## Install
 
@@ -39,7 +39,7 @@ Path defaults to the working directory. `--mode` controls scan depth, not which 
 - `espresso` — grep + read flagged files to confirm (default)
 - `cokezero` — adds cross-file tracing for ambiguous findings
 
-Every scan reports a File/Line/Vulnerability/Category/Severity table (worst first), calls out anything that can't be patched in place (e.g. secrets already in git history), then asks before patching — never without a yes.
+Every scan reports a File/Line/Vulnerability/Category/Severity table (worst first), calls out anything that can't be patched in place (e.g. secrets already in git history), then asks before patching.
 
 ---
 
